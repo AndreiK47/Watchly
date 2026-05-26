@@ -1,10 +1,6 @@
-// --- home-content.js ---
-
-// Setări de bază
 const STORAGE_KEY = "watchly.homeContent";
 const JSON_URL = "../data/home-content.json";
 
-// Datele implicite ale aplicației
 const dateImplicite = {
   trendingMovies: [
     { title: "Galactic Warriors", image: "../img/movies/movie (8).webp", movieId: "galactic-warriors", featured: true },
@@ -59,125 +55,103 @@ const dateImplicite = {
   ],
 };
 
-// Functie simplă pentru a copia un obiect
-function cloneazaObiect(obj) {
-  return JSON.parse(JSON.stringify(obj));
+function salveazaInStorage(date) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(date));
 }
 
-// Incarca datele din fisierul JSON daca exista
-async function preiaDateDinJson() {
+async function obtineDatele() {
+  let dateLocale = localStorage.getItem(STORAGE_KEY);
+  
+  if (dateLocale) {
+    return JSON.parse(dateLocale);
+  }
+
   try {
     let raspuns = await fetch(JSON_URL);
-    if (!raspuns.ok) throw new Error("Nu s-a putut incarca JSON-ul");
-    return await raspuns.json();
+    let dateJson = await raspuns.json();
+    salveazaInStorage(dateJson);
+    return dateJson;
   } catch (eroare) {
-    return cloneazaObiect(dateImplicite);
+    salveazaInStorage(dateImplicite);
+    return dateImplicite;
   }
 }
 
-// Citeste datele din LocalStorage sau din sursa implicita
-async function citesteDatele() {
-  let dateSalvate = localStorage.getItem(STORAGE_KEY);
+async function afiseazaSectiuneTrending(date) {
+  let container = document.getElementById("homeTrendingMovies");
+  if (!container) return;
 
-  if (!dateSalvate) {
-    let dateNoi = await preiaDateDinJson();
-    salveazaDatele(dateNoi);
-    return dateNoi;
-  }
+  let codHtml = "";
+  for (let i = 0; i < date.trendingMovies.length; i++) {
+    let film = date.trendingMovies[i];
+    let url = film.movieId ? "../html/movie-detail.html?id=" + film.movieId : "../html/movie.html";
+    let badge = film.featured ? '<div class="movie-badge"><img src="../img/icons/crown.webp"></div>' : "";
 
-  try {
-    // Combinam datele implicite cu cele salvate pentru a nu pierde structura
-    return { ...cloneazaObiect(dateImplicite), ...JSON.parse(dateSalvate) };
-  } catch (e) {
-    console.warn("Eroare la citirea datelor, folosim cele implicite.");
-    return cloneazaObiect(dateImplicite);
+    codHtml += '<a class="movie-card" href="' + url + '">' +
+                 '<div class="movie-image">' +
+                   '<img src="' + film.image + '">' + badge +
+                 '</div>' +
+                 '<h3>' + film.title + '</h3>' +
+               '</a>';
   }
+  container.innerHTML = codHtml;
 }
 
-// Salveaza datele in LocalStorage
-function salveazaDatele(date) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(date, null, 2));
+async function afiseazaSectiuneCategorii(date) {
+  let container = document.getElementById("homeTrendingCategories");
+  if (!container) return;
+
+  let codHtml = "";
+  for (let i = 0; i < date.categories.length; i++) {
+    let cat = date.categories[i];
+    let clasaImagine = (i === 0) ? "category-image" : "category-generic-image";
+
+    codHtml += '<div class="mov-card mov-' + (i + 1) + '">' +
+                 '<img class="' + clasaImagine + '" src="' + cat.image + '">' +
+                 '<b class="section-label">' + cat.title + '</b>' +
+               '</div>';
+  }
+  container.innerHTML = codHtml;
 }
 
-// Functie pentru a actualiza o anumita sectiune (folosita in admin)
-async function actualizeazaSectiune(numeSectiune, listaNoua) {
-  let date = await citesteDatele();
-  date[numeSectiune] = listaNoua;
-  salveazaDatele(date);
-  return date;
+async function afiseazaSectiuneComingSoon(date) {
+  let container = document.getElementById("homeComingSoon");
+  if (!container) return;
+
+  let codHtml = "";
+  for (let i = 0; i < date.comingSoon.length; i++) {
+    let film = date.comingSoon[i];
+    let clasaItem = (i === 0) ? "timeline-item active" : "timeline-item";
+    let coroana = film.featured ? '<img class="crown-icon" src="../img/icons/crown.webp">' : "";
+
+    codHtml += '<div class="timeline-column">' +
+                 '<div class="' + clasaItem + '"><div class="dot"></div></div>' +
+                 '<div class="timeline-date">' + film.releaseDate + '</div>' +
+                 '<div class="coming-card">' +
+                   '<div class="coming-image-wrapper">' +
+                     '<img class="coming-image" src="' + film.image + '">' + coroana +
+                   '</div>' +
+                   '<button class="btn-reserve" type="button">' +
+                     '<img class="alarm-clock-icon" src="../img/icons/Alarm Clock.svg">' +
+                     '<b class="section-label">Reserve</b>' +
+                   '</button>' +
+                 '</div>' +
+               '</div>';
+  }
+  container.innerHTML = codHtml;
 }
 
-// Functia principala care afiseaza continutul pe pagina
-async function afiseazaContinutHome() {
-  let date = await citesteDatele();
-
-  // 1. Sectiunea Trending
-  let containerTrending = document.getElementById("homeTrendingMovies");
-  if (containerTrending) {
-    let htmlTrending = "";
-    date.trendingMovies.forEach((film) => {
-      let linkDetalii = film.movieId 
-        ? `../html/movie-detail.html?id=${encodeURIComponent(film.movieId)}` 
-        : "../html/movie.html";
-
-      htmlTrending += `
-        <a class="movie-card" href="${linkDetalii}">
-          <div class="movie-image">
-            <img src="${film.image}" alt="${film.title}">
-            ${film.featured ? '<div class="movie-badge"><img src="../img/icons/crown.webp" alt="Top Rated"></div>' : ""}
-          </div>
-          <h3>${film.title}</h3>
-        </a>
-      `;
-    });
-    containerTrending.innerHTML = htmlTrending;
-  }
-
-  // 2. Sectiunea Categorii
-  let containerCategorii = document.getElementById("homeTrendingCategories");
-  if (containerCategorii) {
-    let htmlCategorii = date.categories.map((cat, i) => `
-      <div class="mov-card mov-${i + 1}">
-        <img class="${i === 0 ? "category-image" : "category-generic-image"}" src="${cat.image}" alt="${cat.title}">
-        <b class="section-label">${cat.title}</b>
-      </div>
-    `).join("");
-    containerCategorii.innerHTML = htmlCategorii;
-  }
-
-  // 3. Sectiunea Coming Soon
-  let containerComing = document.getElementById("homeComingSoon");
-  if (containerComing) {
-    let htmlComing = date.comingSoon.map((film, i) => `
-      <div class="timeline-column">
-        <div class="timeline-item${i === 0 ? " active" : ""}">
-          <div class="dot"></div>
-        </div>
-        <div class="timeline-date">${film.releaseDate}</div>
-        <div class="coming-card">
-          <div class="coming-image-wrapper">
-            <img class="coming-image" src="${film.image}" alt="${film.title}">
-            ${film.featured ? '<img class="crown-icon" src="../img/icons/crown.webp" alt="Top">' : ""}
-          </div>
-          <button class="btn-reserve" type="button">
-            <img class="alarm-clock-icon" src="../img/icons/Alarm Clock.svg" alt="">
-            <b class="section-label">Reserve</b>
-          </button>
-        </div>
-      </div>
-    `).join("");
-    containerComing.innerHTML = htmlComing;
-  }
+async function pornesteHome() {
+  let date = await obtineDatele();
+  afiseazaSectiuneTrending(date);
+  afiseazaSectiuneCategorii(date);
+  afiseazaSectiuneComingSoon(date);
 }
 
-// Expunem functiile catre exterior pentru a fi folosite in alte scripturi (admin.js)
 window.WatchlyHomeContent = {
-  read: citesteDatele,
-  save: salveazaDatele,
-  setSection: actualizeazaSectiune,
-  defaults: dateImplicite,
-  storageKey: STORAGE_KEY,
+  read: obtineDatele,
+  save: salveazaInStorage,
+  defaults: dateImplicite
 };
 
-// Pornim afisarea cand se incarca pagina
-document.addEventListener("DOMContentLoaded", afiseazaContinutHome);
+document.addEventListener("DOMContentLoaded", pornesteHome);

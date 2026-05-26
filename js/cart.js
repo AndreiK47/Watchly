@@ -3,9 +3,7 @@
  * Gestionează coșul de cumpărături, dropdown-ul și procesul de checkout.
  */
 
-// --- 1. CREAREA ELEMENTELOR DIN JAVASCRIPT (SHELL) ---
 function ensureCartShell() {
-  // Verificăm dacă iconița de coș există, dacă nu, o adăugăm
   if (!document.getElementById("cartIcon")) {
     const floatingCart = document.createElement("div");
     floatingCart.className = "nav-cart watchly-floating-cart";
@@ -18,7 +16,6 @@ function ensureCartShell() {
     document.body.appendChild(floatingCart);
   }
 
-  // Verificăm dacă dropdown-ul există
   if (!document.getElementById("cartDropdown")) {
     const dropdown = document.createElement("div");
     dropdown.className = "cart";
@@ -44,14 +41,12 @@ function ensureCartShell() {
   }
 }
 
-// Apelăm funcția de shell imediat
 ensureCartShell();
 
-// --- 2. VARIABILE ȘI ELEMENTE ---
 const STORAGE_CART_KEY = "watchly.cart";
 const STORAGE_ORDERS_KEY = "watchly.orders";
 
-let cartData = []; // Aici ținem lista de filme din coș
+let cartData = [];
 
 const UI = {
   icon: document.getElementById("cartIcon"),
@@ -66,25 +61,7 @@ const UI = {
   checkoutRedirectBtn: document.getElementById("checkoutBtn")
 };
 
-// --- 3. FUNCȚII DE SALVARE ȘI ÎNCĂRCARE ---
-function loadCart() {
-  try {
-    const stored = localStorage.getItem(STORAGE_CART_KEY);
-    cartData = stored ? JSON.parse(stored) : [];
-    if (!Array.isArray(cartData)) cartData = [];
-  } catch (e) {
-    cartData = [];
-  }
-}
-
-function saveCart() {
-  localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cartData));
-}
-
-// --- 4. LOGICA COȘULUI (ADĂUGARE/ȘTERGERE) ---
-
 function addMovieToCart(movie) {
-  // Generăm un cartId unic pentru a putea șterge exact acest item
   const itemToAdd = {
     ...movie,
     cartId: movie.cartId || `${movie.id}-${Date.now()}`
@@ -93,10 +70,7 @@ function addMovieToCart(movie) {
   cartData.push(itemToAdd);
   refreshEverything();
   
-  // Feedback vizual - tradus
   playBumpAnimation();
-  const mesaj = window.WatchlyLang?.obtine?.("Filmul a fost adaugat in cos.", window.WatchlyLang?.ia?.()) || "Filmul a fost adaugat in cos.";
-  showToast(mesaj);
 }
 
 function removeMovieFromCart(index) {
@@ -113,10 +87,8 @@ function refreshEverything() {
   saveCart();
   renderDropdownItems();
   updateCountsAndTotal();
-  renderCheckoutPage(); // Dacă suntem pe pagina de cart.html
+  renderCheckoutPage();
 }
-
-// --- 5. RENDER ȘI UI ---
 
 function updateCountsAndTotal() {
   const count = cartData.length;
@@ -125,7 +97,6 @@ function updateCountsAndTotal() {
   if (UI.countSpan) UI.countSpan.textContent = count;
   if (UI.mobileCount) UI.mobileCount.textContent = count;
   
-  // Traducere dinamică pentru "item/items"
   const limba = window.WatchlyLang?.ia?.() || "EN";
   const itemWord = count !== 1 ? 
     window.WatchlyLang?.obtine?.("items", limba) || "items" : 
@@ -134,7 +105,6 @@ function updateCountsAndTotal() {
   if (UI.itemsCountText) UI.itemsCountText.textContent = `${count} ${itemWord}`;
   if (UI.subtotalText) UI.subtotalText.textContent = `$${total.toFixed(2)}`;
 
-  // Aplicăm limba dacă există sistemul de traducere
   window.WatchlyLang?.aplica?.();
 }
 
@@ -163,20 +133,6 @@ function renderDropdownItems() {
     </div>
   `).join("");
 }
-
-// Afișează coșul pe pagina dedicată (cart.html)
-function renderCheckoutPage() {
-  const panel = document.getElementById("checkoutItems");
-  if (!panel) return;
-
-  const subtotal = cartData.reduce((sum, item) => sum + Number(item.price || 0), 0);
-  const fee = cartData.length > 0 ? 1 : 0; // Taxă de 1$ dacă avem produse
-
-  // Update sumare (partea dreaptă a paginii)
-  const limba = window.WatchlyLang?.ia?.() || "EN";
-  const itemWord = cartData.length !== 1 ? 
-    window.WatchlyLang?.obtine?.("items", limba) || "items" : 
-    window.WatchlyLang?.obtine?.("item", limba) || "item";
   
   document.getElementById("checkoutItemCount") && (document.getElementById("checkoutItemCount").textContent = `${cartData.length} ${itemWord}`);
   document.getElementById("checkoutSubtotal") && (document.getElementById("checkoutSubtotal").textContent = `$${subtotal.toFixed(2)}`);
@@ -240,29 +196,13 @@ function toggleCart(e) {
 function playBumpAnimation() {
   if (!UI.icon) return;
   UI.icon.classList.remove("is-bump");
-  void UI.icon.offsetWidth; // trigger reflow
+  void UI.icon.offsetWidth;
   UI.icon.classList.add("is-bump");
 }
 
-function showToast(msg) {
-  let toast = document.querySelector(".watchly-toast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.className = "watchly-toast";
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.add("active");
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => toast.classList.remove("active"), 2200);
-}
 
-// --- 7. EVENIMENTE ---
-
-// Click pe iconiță (Deschide/Închide)
 UI.icon?.addEventListener("click", toggleCart);
 
-// Închide la click în exterior
 document.addEventListener("click", (e) => {
   if (!UI.dropdown?.classList.contains("active")) return;
   const isInside = UI.icon.contains(e.target) || UI.dropdown.contains(e.target) || UI.mobileBtn?.contains(e.target);
@@ -272,7 +212,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Ștergere item din dropdown
 UI.itemsContainer?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-cart-index]");
   if (btn) {
@@ -280,7 +219,6 @@ UI.itemsContainer?.addEventListener("click", (e) => {
   }
 });
 
-// Ștergere item din pagina de checkout
 document.getElementById("checkoutItems")?.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-checkout-remove]");
   if (btn) {
@@ -288,7 +226,6 @@ document.getElementById("checkoutItems")?.addEventListener("click", (e) => {
   }
 });
 
-// Buton "Buy" din dropdown (duce la pagina cart.html)
 UI.checkoutRedirectBtn?.addEventListener("click", () => {
   window.location.href = "cart.html";
 });
@@ -297,9 +234,17 @@ UI.closeBtn?.addEventListener("click", () => {
   UI.dropdown.classList.remove("active");
 });
 
-UI.mobileBtn?.addEventListener("click", toggleCart);
+UI.mobileBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (window.innerWidth <= 768) {
+    window.location.href = "cart.html";
+  } else {
+    toggleCart(e);
+  }
+});
 
-// Procesul final de Checkout (butonul de plată din cart.html)
+
+
 const actionBtn = document.getElementById("checkoutAction");
 if (actionBtn) {
   actionBtn.addEventListener("click", () => {
@@ -323,7 +268,6 @@ if (actionBtn) {
       return;
     }
 
-    // Salvare comandă
     const orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS_KEY) || "[]");
     const subtotal = cartData.reduce((sum, item) => sum + Number(item.price || 0), 0);
     
@@ -341,7 +285,6 @@ if (actionBtn) {
 
     localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders, null, 2));
     
-    // Curățăm coșul și mergem la pagina de succes/comenzi
     clearCart();
     const msgBox = document.getElementById("checkoutMessage");
     msgBox.textContent = "Comanda a fost confirmata!";
@@ -353,7 +296,6 @@ if (actionBtn) {
   });
 }
 
-// Repoziționare dropdown la scroll sau resize
 window.addEventListener("scroll", () => {
   if (UI.dropdown?.classList.contains("active")) positionDropdown();
 });
@@ -361,14 +303,11 @@ window.addEventListener("resize", () => {
   if (UI.dropdown?.classList.contains("active")) positionDropdown();
 });
 
-// --- 8. INIT ȘI EXPORT ---
 loadCart();
 refreshEverything();
 
-// Exportăm obiectul global pentru a fi folosit în alte pagini (ex: movie-detail.js)
 window.WatchlyCart = {
   addItem: addMovieToCart,
   getItems: () => [...cartData],
-  clear: clearCart,
-  showMessage: showToast
+  clear: clearCart
 };

@@ -272,7 +272,7 @@ async function afiseazaDateleContului() {
           <img src="${m.poster}" alt="${m.title}">
           <strong>${m.title}</strong>
           <button class="bookmark-remove" type="button" data-remove-saved="${m.id}">
-            <img src="../img/icons/Movie/Bookmark.svg" alt="Remove">
+            <img src="../img/icons/trash-svgrepo-com.svg" alt="Remove">
           </button>
         </article>
       `).join("");
@@ -356,18 +356,20 @@ document.querySelector(".cancel-subscription")?.addEventListener("click", () => 
   afiseazaDateleContului();
 });
 
-// Stergere Film Salvat (Delegare eveniment)
 document.getElementById("accountSavedMovies")?.addEventListener("click", (e) => {
   let btn = e.target.closest("[data-remove-saved]");
   if (!btn) return;
   
   let u = window.WatchlyAuth.getCurrentUser();
   let idFilm = btn.dataset.removeSaved;
-  let film = window.WatchlyAuth.loadSavedMovies(u.id).find(m => m.id === idFilm);
+  
+  // Luăm lista și căutăm filmul corect
+  let salvate = window.WatchlyAuth.loadSavedMovies(u.id);
+  let film = salvate.find(m => String(m.id) === String(idFilm));
   
   if (film) {
     window.WatchlyAuth.toggleSavedMovie(film);
-    afiseazaDateleContului();
+    afiseazaDateleContului(); // Re-randăm secțiunea
   }
 });
 
