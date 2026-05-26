@@ -27,7 +27,7 @@ body {
   padding: 120px 60px 60px;
   position: relative;
   overflow: hidden;
-  background-image: url("../img/hero/pack 1/background.webp");
+  background-image: url("../img/hero-calltoview/1/background.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -214,7 +214,7 @@ body {
   height: 196px;
 
   border-radius: 10px;
-  background: url(../movie-det/1/thumbs/thumb.webp);
+  background: url(../img/movie/1/poster.webp);
   position: relative;
   border: 1px solid #80818d;
 

@@ -3,49 +3,49 @@ let moviesData = [
     id: "hero-comedy-drama",
     title: "Comedy Drama Spotlight",
     category: "COMEDY - DRAMA",
-    logo: "../img/hero/pack 1/logo.svg",
+    logo: "../img/hero-calltoview/1/logo.svg",
     imdb: "7.2 (IMDb)",
     year: "2025",
     rating: "TV-14",
     description: "A chance meeting on a train leads two strangers to spend an impulsive day together in New York, sharing secrets and exploring the city without revealing their names.",
-    thumbnail: "../img/hero/video 1.svg",
-    heroBg: "../img/hero/pack 1/background.webp",
+    thumbnail: "../img/hero-calltoview/tumbs-1.svg",
+    heroBg: "../img/hero-calltoview/1/background.webp",
   },
   {
     id: "hero-sci-fi-thriller",
     title: "Sci-Fi Thriller Spotlight",
     category: "SCI-FI - THRILLER",
-    logo: "../img/hero/pack 2/logo.svg",
+    logo: "../img/hero-calltoview/2/logo.svg",
     imdb: "8.1 (IMDb)",
     year: "2024",
     rating: "PG-13",
     description: "Stranded alone on a crumbling space station, an astronaut receives a mysterious signal that forces him to question reality and fight to return to Earth.",
-    thumbnail: "../img/hero/video 2.svg",
-    heroBg: "../img/hero/pack 2/background.webp",
+    thumbnail: "../img/hero-calltoview/tumbs-2.svg",
+    heroBg: "../img/hero-calltoview/2/background.webp",
   },
   {
     id: "hero-action-adventure",
     title: "Action Adventure Spotlight",
     category: "ACTION - ADVENTURE",
-    logo: "../img/hero/pack 3/logo.svg",
+    logo: "../img/hero-calltoview/3/logo.svg",
     imdb: "6.8 (IMDb)",
     year: "2026",
     rating: "TV-R",
     description: "Two small-time thieves, Pumpkin and Honey Bunny, reminisce about past robberies over breakfast. Pumpkin suddenly decides they should rob the diner, convinced everyone inside is an easy target.",
-    thumbnail: "../img/hero/video 3.svg",
-    heroBg: "../img/hero/pack 3/background.webp",
+    thumbnail: "../img/hero-calltoview/tumbs-3.svg",
+    heroBg: "../img/hero-calltoview/3/background.webp",
   },
   {
     id: "hero-horror-mystery",
     title: "Horror Mystery Spotlight",
     category: "HORROR - MYSTERY",
-    logo: "../img/hero/pack 4/logo.svg",
+    logo: "../img/hero-calltoview/4/logo.svg",
     imdb: "5.9 (IMDb)",
     year: "2023",
     rating: "R",
     description: "A family moves into a secluded Victorian mansion, only to discover its dark past awakens and begins to twist their minds and darkest fears.",
-    thumbnail: "../img/hero/video 4.svg",
-    heroBg: "../img/hero/pack 4/background.webp",
+    thumbnail: "../img/hero-calltoview/tumbs-4.svg",
+    heroBg: "../img/hero-calltoview/4/background.webp",
   },
 ];
 
@@ -89,7 +89,7 @@ function renderThumbnails() {
       let activeDiv = document.createElement("div");
       activeDiv.className = "active-thumb";
       activeDiv.style.backgroundImage = "url('" + movie.thumbnail + "')";
-      activeDiv.innerHTML = '<img src="../img/icons/Sort Left.svg" alt="Active">';
+      activeDiv.innerHTML = '<img src="../img/hero-calltoview/active-arrow.svg" alt="Active">';
       activeDiv.onclick = function() {
         goToSlide(i);
       };
@@ -113,7 +113,7 @@ function updateHeroUI() {
   movieDescription.textContent = movie.description;
   
   movieTags.innerHTML = 
-    '<div class="tag"><img src="../img/ui/Star Filled.png"><span>' + movie.imdb + '</span></div>' +
+    '<div class="tag"><img src="../img/icon/Interface/star.svg" alt="IMDb"><span>' + movie.imdb + '</span></div>' +
     '<div class="tag"><span>' + movie.year + '</span></div>' +
     '<div class="tag"><span>' + movie.rating + '</span></div>';
 

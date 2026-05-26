@@ -1,7 +1,7 @@
 const STORAGE_USERS = "watchly.users";
 const STORAGE_SESSION = "watchly.session";
 const STORAGE_SAVED = "watchly.savedMovies";
-const DEFAULT_AVATAR = "../img/account/Customer.svg";
+const DEFAULT_AVATAR = "https://static.vecteezy.com/system/resources/previews/026/434/409/non_2x/default-avatar-profile-icon-social-media-user-photo-vector.jpg";
 
 function citesteDate(cheie, valoareDefault) {
   const date = localStorage.getItem(cheie);
@@ -102,6 +102,24 @@ function delogareUtilizator() {
   window.location.href = "../html/home.html";
 }
 
+function actualizeazaUtilizator(id, dateNoi) {
+  const utilizatori = initializareUtilizatori();
+  const index = utilizatori.findIndex(function(utilizator) {
+    return utilizator.id === id;
+  });
+
+  if (index === -1) return null;
+
+  utilizatori[index] = {
+    ...utilizatori[index],
+    ...dateNoi
+  };
+
+  scrieDate(STORAGE_USERS, utilizatori);
+  actualizeazaInterfata(utilizatori[index]);
+  return utilizatori[index];
+}
+
 function inregistrare(nume, email, parola) {
   const utilizatori = initializareUtilizatori();
   
@@ -118,7 +136,7 @@ function inregistrare(nume, email, parola) {
     fullName: nume,
     email: email.toLowerCase(),
     password: parola,
-    plan: "Free Plan",
+    plan: "Gold Plan",
     role: "user",
     country: "Moldova",
     language: "English",
@@ -218,7 +236,7 @@ function actualizeazaInterfata(user) {
         const adminLink = document.createElement("a");
         adminLink.className = "admin-navbar-btn";
         adminLink.href = "../html/admin.html";
-        adminLink.innerHTML = '<img src="../img/account/Customer.svg" alt="Admin">';
+        adminLink.innerHTML = '<img src="../img/icon/Interface/settings.svg" alt="Admin">';
         subBtn.after(adminLink);
       }
     }
@@ -270,11 +288,52 @@ document.addEventListener("DOMContentLoaded", function() {
       window.location.href = "../html/account.html";
     });
   }
+
+  // Google Auth Handler
+  const buttons = document.querySelectorAll(".login-provider");
+  if (buttons.length >= 2) {
+    buttons[0].addEventListener("click", function(e) {
+      e.preventDefault();
+      creazaContSocialAuth("google");
+    });
+    
+    buttons[1].addEventListener("click", function(e) {
+      e.preventDefault();
+      creazaContSocialAuth("apple");
+    });
+  }
 });
+
+function creazaContSocialAuth(provider) {
+  const listaUtilizatori = citesteDate(KEY_USERS, []);
+  const randomNum = Math.floor(Math.random() * 9000) + 1000;
+  const username = provider + "_user_" + randomNum;
+  const email = username + "@watchly.local";
+  const parola = "SocialAuth123!@#";
+
+  const noulUser = {
+    id: Date.now().toString(),
+    username: username,
+    email: email,
+    parola: parola,
+    plan: "Free Plan",
+    role: "user",
+    avatar: DEFAULT_AVATAR,
+    status: "active",
+    createdAt: new Date().toISOString()
+  };
+
+  listaUtilizatori.push(noulUser);
+  scrieDate(KEY_USERS, listaUtilizatori);
+  logareUtilizator(noulUser.id, noulUser.username);
+  
+  window.location.href = "../html/home.html";
+}
 
 window.WatchlyAuth = {
   getCurrentUser: obtineUtilizatorCurent,
   logout: delogareUtilizator,
+  updateUser: actualizeazaUtilizator,
   
   toggleSavedMovie: adaugaLaFavorite,
 

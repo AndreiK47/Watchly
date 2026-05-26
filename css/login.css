@@ -38,14 +38,14 @@
   position: absolute;
   inset: 0;
   z-index: -2;
-  background-image: url("../img/hero/pack 2/background.webp");
+  background-image: url("../img/hero-calltoview/2/background.webp");
   background-position: center;
   background-size: cover;
   opacity: 0.5;
 }
 
 .register-body .login-page::before {
-  background-image: url("../img/hero/pack 3/background.webp");
+  background-image: url("../img/hero-calltoview/3/background.webp");
 }
 
 .login-page::after {

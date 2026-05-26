@@ -1,14 +1,11 @@
 
-// Elemente pentru meniul de mobil
 const butonMeniuMobil = document.getElementById("mobileMenuBtn");
 const meniuMobil = document.getElementById("mobileNav");
 const fundalMeniuMobil = document.getElementById("mobileMenuOverlay");
 
-// Elemente pentru limba pe mobil
 const butonLimbaMobil = document.getElementById("mobileLangBtn");
 const meniuLimbaMobil = document.getElementById("mobileLangMenu");
 
-// Functie care deschide sau inchide meniul
 function seteazaMeniuMobil(deschis) {
   if (butonMeniuMobil) {
     butonMeniuMobil.classList.toggle("active", deschis);
@@ -23,11 +20,9 @@ function seteazaMeniuMobil(deschis) {
     fundalMeniuMobil.classList.toggle("is-visible", deschis);
   }
 
-  // Blocam scroll-ul pe body cand e meniul deschis
   document.body.classList.toggle("menu-open", deschis);
 }
 
-// Functie rapida de inchidere
 function inchideMeniuMobil() {
   seteazaMeniuMobil(false);
   if (meniuLimbaMobil) {
@@ -35,7 +30,6 @@ function inchideMeniuMobil() {
   }
 }
 
-// Event listener pentru butonul de meniu (burger icon)
 if (butonMeniuMobil) {
   butonMeniuMobil.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -44,24 +38,20 @@ if (butonMeniuMobil) {
   });
 }
 
-// Inchide meniul daca apasam pe fundalul gri
 if (fundalMeniuMobil) {
   fundalMeniuMobil.addEventListener("click", inchideMeniuMobil);
 }
 
-// Inchide meniul daca apasam tasta Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") inchideMeniuMobil();
 });
 
-// Inchide meniul daca apasam pe un link din interiorul lui
 if (meniuMobil) {
   meniuMobil.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", inchideMeniuMobil);
   });
 }
 
-// Logica pentru schimbarea limbii pe mobil
 if (butonLimbaMobil) {
   butonLimbaMobil.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -75,7 +65,6 @@ if (meniuLimbaMobil) {
       let codLimba = optiune.getAttribute("data-lang");
       let caleSteag = optiune.getAttribute("data-flag");
 
-      // Actualizam interfata pe mobil
       let steagMobil = document.getElementById("mobileSelectedFlag");
       let textMobil = document.getElementById("mobileSelectedLang");
       if (steagMobil) steagMobil.src = caleSteag;
@@ -83,7 +72,6 @@ if (meniuLimbaMobil) {
 
       meniuLimbaMobil.classList.remove("active");
       
-      // Sincronizam si cu selectorul de pe desktop (daca exista)
       let steagDesktop = document.getElementById("selectedFlag");
       let textDesktop = document.getElementById("selectedLang");
       if (steagDesktop) steagDesktop.src = caleSteag;
@@ -92,14 +80,12 @@ if (meniuLimbaMobil) {
   });
 }
 
-// Logica butoanelor de abonare (Subscribe)
 document.querySelectorAll(".btn-subscribe").forEach((buton) => {
   buton.addEventListener("click", () => {
     window.location.href = "plans.html";
   });
 });
 
-// Detalii planuri (apar cand dai click pe "Learn More" sau link-uri de pret)
 const detaliiPlanuri = {
   "Gold Plan": "Good for one user who wants unlimited streaming, no ads, 25 downloads and 10 TV channels.",
   "Diamond Plan": "Best for regular viewers who want more offline access, no ads, 100 downloads and 100 TV channels.",
@@ -126,13 +112,11 @@ document.querySelectorAll(".pricing-link, .plan-link").forEach((link) => {
       p.textContent = descTraducere;
       link.insertAdjacentElement("afterend", p);
       
-      // Aplicam traducerile si pe textul nou creat daca e cazul
       if (window.WatchlyLang) window.WatchlyLang.aplica();
     }
   });
 });
 
-// Adaugare abonament in cos la click pe butonul de pret
 document.querySelectorAll(".pricing-btn, .plan-button").forEach((buton) => {
   buton.addEventListener("click", (e) => {
     e.preventDefault();
@@ -148,7 +132,7 @@ document.querySelectorAll(".pricing-btn, .plan-button").forEach((buton) => {
         id: titlu.toLowerCase().replace(/\s+/g, "-"),
         title: titlu,
         subtitle: subtitlu,
-        poster: "../img/icons/crown.webp",
+        poster: "../img/icon/Interface/star.svg",
         price: pretNumerat,
       });
     } else {
@@ -157,7 +141,6 @@ document.querySelectorAll(".pricing-btn, .plan-button").forEach((buton) => {
   });
 });
 
-// Logica campului de cautare (Redirect catre pagina de filme)
 document.querySelectorAll(".nav-search-input").forEach((input) => {
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -169,13 +152,8 @@ document.querySelectorAll(".nav-search-input").forEach((input) => {
   });
 });
 
-// Redirectionare automata pentru link-urile din footer
 document.querySelectorAll(".footer-link, .footer-bottom-link").forEach((link) => {
   let text = link.textContent.trim().toLowerCase();
-  if (text === "about us") link.href = "../html/about.html";
-  if (text === "careers") link.href = "../html/careers.html";
   if (text === "contact") link.href = "../html/contact.html";
   if (text === "account") link.href = "../html/account.html";
-  if (text === "terms" || text === "terms of service") link.href = "../html/terms.html";
-  if (text === "privacy" || text === "privacy policy") link.href = "../html/privacy.html";
 });

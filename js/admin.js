@@ -2,31 +2,10 @@
 const KEY_MOVIES = "watchly_movies";
 const KEY_USERS = "watchly.users";
 const KEY_HOME = "watchly.homeContent";
-const KEY_ORDERS = "watchly.orders";
+const MOVIES_JSON_URL = "../data/movies.json";
 
 // --- DATE DEFAULT ---
-const DEFAULT_MOVIES = [
-  {
-    id: "galactic-warriors",
-    title: "Galactic Warriors",
-    genre: "Action",
-    category: "Action - Adventure",
-    year: "2025",
-    duration: "128 min",
-    ageRating: "PG-13",
-    imdb: "4.8",
-    buyPrice: 12.4,
-    rentPrice: 2.4,
-    poster: "../img/movies/movie (8).webp",
-    heroBg: "../img/hero/pack 1/background.webp",
-    logo: "../img/hero/pack 1/logo.svg",
-    thumbnail: "../movie-det/1/thumbs/thumb.webp",
-    trailerImages: ["../movie-det/1/trailer/trailer (1).webp", "../movie-det/1/trailer/trailer (2).webp"],
-    description: "Galactic Warrior follows an elite space pilot tasked with defending humanity.",
-    status: "published",
-    featured: true
-  }
-];
+let DEFAULT_MOVIES = [];
 
 // --- VARIABILE GLOBALE ---
 let toateFilmele = [];
@@ -36,12 +15,60 @@ let cautareUserText = "";
 // --- UTILITARE ---
 function citesteDate(cheie, rezerva) {
   const date = localStorage.getItem(cheie);
-  if (date) return JSON.parse(date);
+  if (date) return normalizeazaDateStocate(cheie, JSON.parse(date));
   return rezerva;
+}
+
+function corecteazaImagineVeche(path) {
+  if (!path) return path;
+  return String(path)
+    .replace(/\.\.\/img\/movies\/movie \((\d+)\)\.webp/g, "../img/movie/$1/poster.webp")
+    .replace(/\.\.\/img\/hero\/pack ([1-4])\//g, "../img/hero-calltoview/$1/")
+    .replace(/\.\.\/movie-det\/1\/thumbs\/thumb\.webp/g, "../img/movie/1/poster.webp")
+    .replace(/\.\.\/movie-det\/1\/trailer\/trailer \(1\)\.webp/g, "../img/movie/1/background.webp")
+    .replace(/\.\.\/movie-det\/1\/trailer\/trailer \(2\)\.webp/g, "../img/movie/2/background.webp");
+}
+
+function normalizeazaDateStocate(cheie, date) {
+  if (cheie === KEY_MOVIES && Array.isArray(date)) {
+    date.forEach(film => {
+      film.poster = corecteazaImagineVeche(film.poster);
+      film.heroBg = corecteazaImagineVeche(film.heroBg);
+      film.logo = corecteazaImagineVeche(film.logo);
+      film.thumbnail = corecteazaImagineVeche(film.thumbnail);
+      film.trailerImages = Array.isArray(film.trailerImages) ? film.trailerImages.map(corecteazaImagineVeche) : [];
+    });
+  }
+
+  if (cheie === KEY_HOME && date) {
+    ["trendingMovies", "categories", "comingSoon"].forEach(sec => {
+      if (!Array.isArray(date[sec])) return;
+      date[sec].forEach(item => {
+        item.image = corecteazaImagineVeche(item.image);
+      });
+    });
+  }
+
+  return date;
 }
 
 function scrieDate(cheie, valoare) {
   localStorage.setItem(cheie, JSON.stringify(valoare, null, 2));
+}
+
+async function incarcaFilmeleImplicite() {
+  if (Array.isArray(window.WATCHLY_DEFAULT_MOVIES)) {
+    DEFAULT_MOVIES = normalizeazaDateStocate(KEY_MOVIES, window.WATCHLY_DEFAULT_MOVIES);
+    return;
+  }
+
+  try {
+    const raspuns = await fetch(MOVIES_JSON_URL);
+    const filme = await raspuns.json();
+    DEFAULT_MOVIES = normalizeazaDateStocate(KEY_MOVIES, filme);
+  } catch (eroare) {
+    DEFAULT_MOVIES = [];
+  }
 }
 
 function schimbaTab(numeTab) {
@@ -266,16 +293,16 @@ function randeazaUseri() {
         </div>
         <div class="admin-user__actions">
           <select onchange="actualizeazaUser('${u.id}', 'plan', this.value)">
-            <option value="Free Plan" ${u.plan === 'Free Plan' ? 'selected' : ''}>Free</option>
-            <option value="Gold Plan" ${u.plan === 'Gold Plan' ? 'selected' : ''}>Gold</option>
-            <option value="Platinum Plan" ${u.plan === 'Platinum Plan' ? 'selected' : ''}>Platinum</option>
+            <option value="Gold Plan" ${u.plan === 'Gold Plan' ? 'selected' : ''}>Gold Plan</option>
+            <option value="Diamond Plan" ${u.plan === 'Diamond Plan' ? 'selected' : ''}>Diamond Plan</option>
+            <option value="Platinum Plan" ${u.plan === 'Platinum Plan' ? 'selected' : ''}>Platinum Plan</option>
           </select>
           <select onchange="actualizeazaUser('${u.id}', 'role', this.value)">
             <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
             <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
           </select>
-          <button class="admin-btn" onclick="actualizeazaUser('${u.id}', 'status', '${u.status === 'blocked' ? 'active' : 'blocked'}')">
-            ${u.status === 'blocked' ? 'Unblock' : 'Block'}
+          <button class="admin-btn admin-btn--danger" onclick="stergeUser('${u.id}')">
+            Delete
           </button>
         </div>
       </div>
@@ -293,8 +320,18 @@ function actualizeazaUser(id, camp, valoare) {
   }
 }
 
+function stergeUser(id) {
+  if (confirm("Delete this account?")) {
+    let lista = citesteDate(KEY_USERS, []);
+    lista = lista.filter(u => u.id !== id);
+    scrieDate(KEY_USERS, lista);
+    randeazaUseri();
+  }
+}
+
 // --- INITIALIZARE ---
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  await incarcaFilmeleImplicite();
   toateFilmele = citesteDate(KEY_MOVIES, DEFAULT_MOVIES);
   
   randeazaFilme();
@@ -321,15 +358,27 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("importHomeJsonBtn").onclick = importaHomeJSON;
 
   // Reset/Clear
-  document.getElementById("resetMoviesBtn").onclick = () => { if(confirm("Reset?")) { toateFilmele = [...DEFAULT_MOVIES]; scrieDate(KEY_MOVIES, toateFilmele); randeazaFilme(); }};
+  document.getElementById("resetMoviesBtn").onclick = () => {
+    if (confirm("Reset?")) {
+      if (DEFAULT_MOVIES.length === 0) {
+        alert("Filmele initiale nu s-au putut incarca.");
+        return;
+      }
+
+      toateFilmele = DEFAULT_MOVIES.map(film => ({ ...film }));
+      scrieDate(KEY_MOVIES, toateFilmele);
+      randeazaFilme();
+    }
+  };
   
   schimbaTab("movies");
 });
 
-// Functii globale pentru butoane HTML
+// Global functions for HTML buttons
 window.pregatesteEditare = pregatesteEditare;
 window.stergeFilm = stergeFilm;
 window.stergeHomeItem = stergeHomeItem;
 window.actualizeazaUser = actualizeazaUser;
+window.stergeUser = stergeUser;
 window.exportaHomeJSON = exportaHomeJSON;
 window.importaHomeJSON = importaHomeJSON;

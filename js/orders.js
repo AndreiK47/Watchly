@@ -1,18 +1,14 @@
-// --- orders.js ---
 
 (function () {
   const containerComenzi = document.getElementById("ordersList");
-  // Daca nu suntem pe pagina de comenzi sau nu avem sistemul de login, ne oprim
   if (!containerComenzi || !window.WatchlyAuth) return;
 
-  // Verificam cine e logat
   const utilizator = window.WatchlyAuth.getCurrentUser();
   if (!utilizator) {
     window.location.href = "../html/login.html";
     return;
   }
 
-  // Preluam comenzile din localStorage
   let listaComenzi = [];
   try {
     let dateSalvate = localStorage.getItem("watchly.orders");
@@ -21,12 +17,10 @@
     console.error("Eroare la citirea comenzilor:", eroare);
   }
 
-  // Filtram comenzile: adminul vede tot, userul doar pe ale lui
   let comenziAfisate = listaComenzi.filter((comanda) => {
     return comanda.userId === utilizator.id || utilizator.role === "admin";
   });
 
-  // Cele mai noi comenzi sa fie primele
   comenziAfisate.reverse();
 
   if (comenziAfisate.length === 0) {
@@ -36,7 +30,6 @@
     return;
   }
 
-  // Generam HTML-ul pentru fiecare comanda
   const limba = window.WatchlyLang?.ia?.() || "EN";
   containerComenzi.innerHTML = comenziAfisate.map((comanda) => {
     let dataFormatata = new Date(comanda.createdAt).toLocaleString();

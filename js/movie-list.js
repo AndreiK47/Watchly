@@ -105,12 +105,12 @@
       '<img class="image-9-icon" src="' + movie.poster + '">' +
       '<div class="rate"><div class="about-us">$' + price + '</div></div>' +
       '<div class="rate2">' +
-        '<img class="event-icon" src="../img/icons/Star.png">' +
+        '<img class="event-icon" src="../img/icon/Interface/star.svg">' +
         '<div class="about-us">' + movie.imdb + '</div>' +
       '</div>' +
       '<div class="year-price">' +
         '<div class="year5">' +
-          '<img class="event-icon" src="../img/icons/Event.svg">' +
+          '<img class="event-icon" src="../img/icon/Calendar/calendar.svg">' +
           '<div class="favorite">' + movie.year + '</div>' +
         '</div>' +
       '</div>' +
@@ -180,7 +180,7 @@
         '<p>' + total + ' movies found' + filterText + '</p>' +
       '</div>' +
       '<form class="search-result-form">' +
-        '<img src="../img/icons/Search.svg">' +
+        '<img src="../img/icon/Interface/loop.svg">' +
         '<input type="search" value="' + activeQuery + '" placeholder="Search movies">' +
         '<button type="submit">Search</button>' +
       '</form>';
@@ -223,11 +223,11 @@
 
     paginationBox.innerHTML = 
       '<button class="page-arrow" data-page="' + (currentPage - 1) + '" ' + prevDisabled + '>' +
-        '<img src="../img/icons/Back.png">' +
+        '<img src="../img/icon/Arrow/Chevron_Left.svg">' +
       '</button>' +
       '<div class="nr">' + pageHtml + '</div>' +
       '<button class="page-arrow" data-page="' + (currentPage + 1) + '" ' + nextDisabled + '>' +
-        '<img src="../img/ui/Back.png">' +
+        '<img src="../img/icon/Arrow/Chevron_Right.svg">' +
       '</button>';
 
     let btns = paginationBox.querySelectorAll("[data-page]");

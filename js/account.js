@@ -33,7 +33,6 @@ taburiCont.forEach((tab) => {
 const CHEIE_COMENZI = "watchly.orders";
 const CHEIE_DISPOZITIVE = "watchly.devices";
 const PRETURI_PLANURI = {
-  "Free Plan": 0,
   "Gold Plan": 9.99,
   "Diamond Plan": 19.99,
   "Platinum Plan": 29.99,
@@ -123,9 +122,10 @@ function detecteazaDispozitivulCurent() {
 }
 
 function iaIconitaDispozitiv(tip) {
-  if (tip === "tv") return "../img/account/iPad.svg"; // Placeholder TV
-  if (tip === "mobile" || tip === "tablet") return "../img/account/iPhone 14.svg";
-  return "../img/account/Mac Client.svg";
+  if (tip === "tv") return "../img/icon/System/tv.svg";
+  if (tip === "mobile") return "../img/icon/System/phone.svg";
+  if (tip === "tablet") return "../img/icon/System/table.svg";
+  return "../img/icon/System/pc.svg";
 }
 
 function inregistreazaAcestDispozitiv(userId) {
@@ -188,16 +188,16 @@ async function afiseazaDateleContului() {
       ...item,
       movieId: item.movieId || dateFilm?.id,
       genre: item.genre || dateFilm?.genre || "Other",
-      poster: item.poster || dateFilm?.poster || "../img/movies/movie (1).webp"
+      poster: item.poster || dateFilm?.poster || "../img/movie/1/poster.webp"
     };
   });
 
   // 1. Date de baza Profil
   document.querySelectorAll("[data-account-name]").forEach(el => el.textContent = utilizator.fullName || utilizator.username);
   document.querySelectorAll("[data-account-greeting]").forEach(el => el.textContent = `Hi, ${utilizator.fullName || utilizator.username}`);
-  document.querySelectorAll("[data-account-plan]").forEach(el => el.textContent = utilizator.plan || "Free Plan");
+  document.querySelectorAll("[data-account-plan]").forEach(el => el.textContent = utilizator.plan || "Gold Plan");
   document.querySelectorAll("[data-member-date]").forEach(el => el.textContent = `Member since ${formateazaData(utilizator.createdAt)}`);
-  document.querySelectorAll("[data-profile-image]").forEach(img => img.src = utilizator.profileImage || "../img/account/Customer.svg");
+  document.querySelectorAll("[data-profile-image]").forEach(img => img.src = utilizator.profileImage || "https://static.vecteezy.com/system/resources/previews/026/434/409/non_2x/default-avatar-profile-icon-social-media-user-photo-vector.jpg");
 
   // Statisici
   let nrRent = toateItemele.filter(i => i.subtitle?.toLowerCase().includes("rent")).length;
@@ -250,7 +250,7 @@ async function afiseazaDateleContului() {
         let proc = Math.max(20, Math.round((count / maxG) * 100));
         return `
           <article class="account-movie-card small">
-            <img src="${filmExemplu?.poster || "../img/movies/movie (1).webp"}" alt="${nume}">
+            <img src="${filmExemplu?.poster || "../img/movie/1/poster.webp"}" alt="${nume}">
             <strong>${nume}</strong>
             <div class="watch-progress"><span style="width: ${proc}%"></span></div>
             <small class="account-genre-count">${count} items</small>
@@ -272,7 +272,7 @@ async function afiseazaDateleContului() {
           <img src="${m.poster}" alt="${m.title}">
           <strong>${m.title}</strong>
           <button class="bookmark-remove" type="button" data-remove-saved="${m.id}">
-            <img src="../img/icons/trash-svgrepo-com.svg" alt="Remove">
+            <img src="../img/icon/Menu/x.svg" alt="Remove">
           </button>
         </article>
       `).join("");
@@ -293,7 +293,7 @@ async function afiseazaDateleContului() {
             <img class="device-icon" src="${iaIconitaDispozitiv(d.type)}" alt="">
             <p>${d.name}<small>${formatTimpActiv(d.lastActive, esteAcesta)} · ${d.browser}</small></p>
             <button class="device-remove" type="button" data-remove-device="${d.id}">
-              <img src="../img/icons/close.svg" alt="X">
+              <img src="../img/icon/Menu/x.svg" alt="X">
             </button>
             <i class="${esteAcesta ? "active" : ""}"></i>
           </div>
@@ -303,7 +303,7 @@ async function afiseazaDateleContului() {
   }
 
   // 7. Plan si Preturi
-  document.querySelectorAll("[data-current-plan]").forEach(el => el.textContent = utilizator.plan || "Free Plan");
+  document.querySelectorAll("[data-current-plan]").forEach(el => el.textContent = utilizator.plan || "Gold Plan");
   let pret = PRETURI_PLANURI[utilizator.plan] || 0;
   document.querySelectorAll("[data-plan-price]").forEach(el => el.textContent = `$${pret.toFixed(2)}`);
 }
@@ -352,7 +352,7 @@ document.querySelectorAll("[data-plan-choice]").forEach(btn => {
 // Anulare Subscriptie
 document.querySelector(".cancel-subscription")?.addEventListener("click", () => {
   let u = window.WatchlyAuth.getCurrentUser();
-  window.WatchlyAuth.updateUser(u.id, { plan: "Free Plan" });
+  window.WatchlyAuth.updateUser(u.id, { plan: "Gold Plan" });
   afiseazaDateleContului();
 });
 

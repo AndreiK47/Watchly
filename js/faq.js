@@ -1,10 +1,7 @@
-/**
- * Watchly FAQ Accordion Logic
- * Gestionează întrebările frecvente și injectarea răspunsurilor.
- */
+// FAQ Accordion logic - handles expandable Q&A sections
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Lista de răspunsuri care vor fi injectate în HTML
+  // FAQ answers to inject into HTML
   const faqAnswers = [
     "Watchly is your premium streaming platform offering access to thousands of movies and TV shows. Enjoy unlimited entertainment with high-quality content, personalized recommendations, and seamless viewing experience across all your devices.",
     "Watchly includes movie browsing, trending categories, favorites, rentals, purchases, subscription plans, account tools and secure checkout in one place.",
@@ -14,10 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const allFaqItems = document.querySelectorAll('.faq-items-container > div');
-  
-  // Iconițele folosite pentru stările Plus/Minus
-  const ICON_PLUS = '../img/icons/Plus Math.svg';
-  const ICON_MINUS = '../img/icons/Subtract.svg';
+  const ICON_PLUS = '../img/icon/Arrow/Caret_Right_SM.svg';
+  const ICON_MINUS = '../img/icon/Arrow/Caret_Down_SM.svg';
 
   allFaqItems.forEach((item, index) => {
     const header = item.querySelector('.faq-header, .faq-header-collapsed');
@@ -25,11 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!header || !icon) return;
 
-    // 1. Injectăm textul răspunsului dacă acesta nu există deja în HTML
+    // Inject answer text if not already present
     if (!item.querySelector('.faq-answer')) {
       const answerDiv = document.createElement('div');
       answerDiv.className = 'faq-answer';
-      // Luăm textul din array-ul de mai sus în funcție de index
       const textContent = faqAnswers[index] || faqAnswers[0];
       answerDiv.innerHTML = `<div class="faq-answer-text">${textContent}</div>`;
       item.appendChild(answerDiv);
@@ -37,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentAnswer = item.querySelector('.faq-answer');
 
-    // 2. Setăm starea inițială (primul element e deschis, restul închise)
+    // Set initial state (first item open, others closed)
     if (index === 0) {
       item.classList.add('expanded', 'active');
       if (currentAnswer) currentAnswer.classList.remove('collapsed');
@@ -48,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
       icon.src = ICON_PLUS;
     }
 
-    // 3. Funcția care închide toate celelalte elemente
+    // Close all others function
     const closeAllOthers = () => {
       allFaqItems.forEach((otherItem) => {
         if (otherItem !== item) {
@@ -63,30 +57,44 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
-    // 4. Logica de Toggle la click pe header
+    // Toggle logic on header click
     header.addEventListener('click', () => {
       const isExpanded = item.classList.contains('expanded');
 
-      // Închidem tot restul înainte de a deschide elementul curent
       closeAllOthers();
 
       if (!isExpanded) {
-        // Dacă era închis, îl deschidem
         item.classList.add('expanded', 'active');
         icon.src = ICON_MINUS;
         if (currentAnswer) currentAnswer.classList.remove('collapsed');
       } else {
-        // Dacă era deja deschis, îl închidem
         item.classList.remove('expanded', 'active');
         icon.src = ICON_PLUS;
         if (currentAnswer) currentAnswer.classList.add('collapsed');
       }
     });
 
-    // 5. Permitem click și direct pe iconiță
+    // Allow click on icon too
     icon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Evităm declanșarea dublă dacă iconița e în header
+      e.stopPropagation();
       header.click();
     });
+  });
+
+  // Also handle .faq-item elements (alternative HTML structure)
+  const elementeFaq = document.querySelectorAll('.faq-item');
+  elementeFaq.forEach(articol => {
+    const intrebare = articol.querySelector('.faq-question');
+    
+    if (intrebare) {
+      intrebare.addEventListener('click', () => {
+        elementeFaq.forEach(altArticol => {
+          if (altArticol !== articol) {
+            altArticol.classList.remove('active');
+          }
+        });
+        articol.classList.toggle('active');
+      });
+    }
   });
 });

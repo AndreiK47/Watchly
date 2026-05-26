@@ -185,8 +185,8 @@
 }
 
 .account-icon {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   flex: 0 0 auto;
 }
@@ -706,7 +706,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  gap: 20px;
   min-height: 290px;
   padding: 50px 28px 36px;
   border-radius: 8px;
@@ -742,7 +742,8 @@
 }
 
 .plans-mini strong {
-  font-size: 24px;
+      font-size: 24px;
+    font-family: 'Syne';
 }
 
 .plans-mini ul {

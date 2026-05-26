@@ -58,7 +58,7 @@ async function startMovieDetails() {
   if (meta) {
     meta.innerHTML = 
       '<div class="movie-detail__badge">' +
-        '<img class="movie-detail__star-icon" src="../img/ui/Star Filled.png" alt="Star">' +
+        '<img class="movie-detail__star-icon" src="../img/icon/Interface/star.svg" alt="Star">' +
         '<span>' + movie.imdb + ' (IMDb)</span>' +
       '</div>' +
       '<div class="movie-detail__badge"><span>' + movie.year + '</span></div>' +
@@ -117,7 +117,7 @@ async function startMovieDetails() {
       trailerHtml += 
         '<div class="movie-detail-trailers__card">' +
           '<img class="movie-detail-trailers__image" src="' + trailerImgs[i] + '">' +
-          '<img class="movie-detail-trailers__play" src="../img/icons/Movie/Play.svg">' +
+          '<img class="movie-detail-trailers__play" src="../img/icon/Media/play.svg">' +
           '<div class="movie-detail-trailers__content">' +
             '<span class="movie-detail-trailers__title">' + movie.title + ' - Trailer ' + (i + 1) + '</span>' +
             '<span class="movie-detail-trailers__time">' + timeValue + '</span>' +
@@ -133,7 +133,7 @@ async function startMovieDetails() {
       let item = related[i];
       let crown = "";
       if (i === 0) {
-        crown = '<img class="movie-detail__premium-icon" src="../img/icons/crown.webp">';
+        crown = '<img class="movie-detail__premium-icon" src="../img/icon/Interface/star.svg">';
       }
       relatedHtml += 
         '<a class="movie-detail__movie-card" href="../html/movie-detail.html?id=' + encodeURIComponent(item.id) + '">' +

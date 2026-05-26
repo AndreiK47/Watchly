@@ -1,145 +1,95 @@
-/**
- * Watchly Cart Logic
- * Gestionează coșul de cumpărături, dropdown-ul și procesul de checkout.
- */
-
-function ensureCartShell() {
-  if (!document.getElementById("cartIcon")) {
-    const floatingCart = document.createElement("div");
-    floatingCart.className = "nav-cart watchly-floating-cart";
-    floatingCart.innerHTML = `
-      <div class="shopping-cart" id="cartIcon" role="button" aria-expanded="false" tabindex="0">
-        <img src="../img/icons/Shopping Cart.svg" alt="Cart" />
-        <span id="cartCount">0</span>
-      </div>
-    `;
-    document.body.appendChild(floatingCart);
-  }
-
-  if (!document.getElementById("cartDropdown")) {
-    const dropdown = document.createElement("div");
-    dropdown.className = "cart";
-    dropdown.id = "cartDropdown";
-    dropdown.innerHTML = `
-      <div class="tittle">
-        <b class="my-cart">My Cart</b>
-        <img class="close-icon" src="../img/icons/close.svg" alt="Close" id="closeCart">
-      </div>
-      <div class="tittle2">
-        <div class="my-cart" id="cartItemsCount">0 items</div>
-      </div>
-      <div class="product-1-parent" id="cartItems"></div>
-      <div class="subtotal">
-        <b class="my-cart">Subtotal</b>
-        <b class="my-cart" id="subtotalAmount">$0.00</b>
-      </div>
-      <button type="button" class="btn" id="checkoutBtn">
-        <b class="my-cart">Buy</b>
-      </button>
-    `;
-    document.body.appendChild(dropdown);
-  }
-}
-
-ensureCartShell();
-
 const STORAGE_CART_KEY = "watchly.cart";
 const STORAGE_ORDERS_KEY = "watchly.orders";
 
 let cartData = [];
 
-const UI = {
-  icon: document.getElementById("cartIcon"),
-  dropdown: document.getElementById("cartDropdown"),
-  countSpan: document.getElementById("cartCount"),
-  itemsCountText: document.getElementById("cartItemsCount"),
-  itemsContainer: document.getElementById("cartItems"),
-  subtotalText: document.getElementById("subtotalAmount"),
-  closeBtn: document.getElementById("closeCart"),
-  mobileBtn: document.getElementById("mobileCartBtn"),
-  mobileCount: document.getElementById("mobileCartCount"),
-  checkoutRedirectBtn: document.getElementById("checkoutBtn")
-};
-
-function addMovieToCart(movie) {
-  const itemToAdd = {
-    ...movie,
-    cartId: movie.cartId || `${movie.id}-${Date.now()}`
-  };
-  
-  cartData.push(itemToAdd);
-  refreshEverything();
-  
-  playBumpAnimation();
+function citesteCosul() {
+  try {
+    cartData = JSON.parse(localStorage.getItem(STORAGE_CART_KEY)) || [];
+  } catch (error) {
+    cartData = [];
+  }
 }
 
-function removeMovieFromCart(index) {
-  cartData.splice(index, 1);
-  refreshEverything();
+function salveazaCosul() {
+  localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cartData));
 }
 
-function clearCart() {
-  cartData = [];
-  refreshEverything();
+function iaElement(id) {
+  return document.getElementById(id);
 }
 
-function refreshEverything() {
-  saveCart();
-  renderDropdownItems();
-  updateCountsAndTotal();
-  renderCheckoutPage();
+function numaraTotalul() {
+  let total = 0;
+  for (let i = 0; i < cartData.length; i++) {
+    total += Number(cartData[i].price || 0);
+  }
+  return total;
 }
 
-function updateCountsAndTotal() {
-  const count = cartData.length;
-  const total = cartData.reduce((sum, item) => sum + Number(item.price || 0), 0);
+function actualizeazaNumarCos() {
+  let count = cartData.length;
+  let cartCount = iaElement("cartCount");
+  let mobileCartCount = iaElement("mobileCartCount");
+  let cartItemsCount = iaElement("cartItemsCount");
+  let subtotalAmount = iaElement("subtotalAmount");
 
-  if (UI.countSpan) UI.countSpan.textContent = count;
-  if (UI.mobileCount) UI.mobileCount.textContent = count;
-  
-  const limba = window.WatchlyLang?.ia?.() || "EN";
-  const itemWord = count !== 1 ? 
-    window.WatchlyLang?.obtine?.("items", limba) || "items" : 
-    window.WatchlyLang?.obtine?.("item", limba) || "item";
-  
-  if (UI.itemsCountText) UI.itemsCountText.textContent = `${count} ${itemWord}`;
-  if (UI.subtotalText) UI.subtotalText.textContent = `$${total.toFixed(2)}`;
-
-  window.WatchlyLang?.aplica?.();
+  if (cartCount) cartCount.textContent = count;
+  if (mobileCartCount) mobileCartCount.textContent = count;
+  if (cartItemsCount) cartItemsCount.textContent = count + (count === 1 ? " item" : " items");
+  if (subtotalAmount) subtotalAmount.textContent = "$" + numaraTotalul().toFixed(2);
 }
 
-function renderDropdownItems() {
-  if (!UI.itemsContainer) return;
+function afiseazaDropdownCos() {
+  let container = iaElement("cartItems");
+  if (!container) return;
 
   if (cartData.length === 0) {
-    const mesajGol = window.WatchlyLang?.obtine?.("Your cart is empty.", window.WatchlyLang?.ia?.()) || "Your cart is empty.";
-    UI.itemsContainer.innerHTML = `<div class="cart-empty">${mesajGol}</div>`;
+    container.innerHTML = '<div class="cart-empty">Your cart is empty.</div>';
     return;
   }
 
-  UI.itemsContainer.innerHTML = cartData.map((item, index) => `
-    <div class="product-1">
-      <div class="product-1-group">
-        <img src="${item.poster}" alt="${item.title}" class="product-1-icon">
-        <div class="frame-parent">
-          <div class="galactic-warriors-hd-parent">
-            <div class="galactic-warriors-hd">${item.title}</div>
-            <div class="rent-40">${item.subtitle || ""}${item.rentDate ? ` - ${item.rentDate}` : ""}</div>
+  let html = "";
+  for (let i = 0; i < cartData.length; i++) {
+    let item = cartData[i];
+    html += `
+      <div class="product-1">
+        <div class="product-1-group">
+          <img src="${item.poster}" alt="${item.title}" class="product-1-icon">
+          <div class="frame-parent">
+            <div class="galactic-warriors-hd-parent">
+              <div class="galactic-warriors-hd">${item.title}</div>
+              <div class="rent-40">${item.subtitle || ""}${item.rentDate ? " - " + item.rentDate : ""}</div>
+            </div>
+            <div class="galactic-warriors-hd">$${Number(item.price || 0).toFixed(2)}</div>
           </div>
-          <div class="galactic-warriors-hd">$${Number(item.price).toFixed(2)}</div>
         </div>
+        <img src="../img/icon/Menu/x.svg" alt="Remove" class="close-icon" data-cart-index="${i}">
       </div>
-      <img src="../img/icons/close.svg" alt="Remove" class="close-icon" data-cart-index="${index}">
-    </div>
-  `).join("");
+    `;
+  }
+  container.innerHTML = html;
 }
-  
-  document.getElementById("checkoutItemCount") && (document.getElementById("checkoutItemCount").textContent = `${cartData.length} ${itemWord}`);
-  document.getElementById("checkoutSubtotal") && (document.getElementById("checkoutSubtotal").textContent = `$${subtotal.toFixed(2)}`);
-  document.getElementById("checkoutFee") && (document.getElementById("checkoutFee").textContent = `$${fee.toFixed(2)}`);
-  document.getElementById("checkoutTotal") && (document.getElementById("checkoutTotal").textContent = `$${(subtotal + fee).toFixed(2)}`);
 
-  if (cartData.length === 0) {
+function afiseazaPaginaCheckout() {
+  let panel = iaElement("checkoutItems");
+  if (!panel) return;
+
+  let count = cartData.length;
+  let subtotal = numaraTotalul();
+  let fee = count > 0 ? 1 : 0;
+
+  let checkoutItemCount = iaElement("checkoutItemCount");
+  let checkoutSubtotal = iaElement("checkoutSubtotal");
+  let checkoutFee = iaElement("checkoutFee");
+  let checkoutTotal = iaElement("checkoutTotal");
+
+  if (checkoutItemCount) checkoutItemCount.textContent = count + (count === 1 ? " item" : " items");
+  if (checkoutSubtotal) checkoutSubtotal.textContent = "$" + subtotal.toFixed(2);
+  if (checkoutFee) checkoutFee.textContent = "$" + fee.toFixed(2);
+  if (checkoutTotal) checkoutTotal.textContent = "$" + (subtotal + fee).toFixed(2);
+
+  if (count === 0) {
     panel.innerHTML = `
       <div class="checkout-empty">
         <h3>No movies selected</h3>
@@ -150,164 +100,201 @@ function renderDropdownItems() {
     return;
   }
 
-  panel.innerHTML = cartData.map((item, index) => `
-    <article class="cart-page-item">
-      <img src="${item.poster}" alt="${item.title}">
-      <div class="cart-page-item-info">
-        <h3>${item.title}</h3>
-        <p>${item.subtitle || ""}${item.rentDate ? ` - starts ${item.rentDate}` : ""}</p>
-      </div>
-      <strong>$${Number(item.price || 0).toFixed(2)}</strong>
-      <button type="button" data-checkout-remove="${index}">
-        <img src="../img/icons/close.svg" alt="Remove">
-      </button>
-    </article>
-  `).join("");
+  let html = "";
+  for (let i = 0; i < cartData.length; i++) {
+    let item = cartData[i];
+    html += `
+      <article class="cart-page-item">
+        <img src="${item.poster}" alt="${item.title}">
+        <div class="cart-page-item-info">
+          <h3>${item.title}</h3>
+          <p>${item.subtitle || ""}${item.rentDate ? " - starts " + item.rentDate : ""}</p>
+        </div>
+        <strong>$${Number(item.price || 0).toFixed(2)}</strong>
+        <button type="button" data-checkout-remove="${i}">
+          <img src="../img/icon/Menu/x.svg" alt="Remove">
+        </button>
+      </article>
+    `;
+  }
+  panel.innerHTML = html;
 }
 
-// --- 6. POZIȚIONARE ȘI EFECTE ---
-
-function positionDropdown() {
-  if (!UI.icon || !UI.dropdown) return;
-  const rect = UI.icon.getBoundingClientRect();
-  const dropdownWidth = Math.min(420, window.innerWidth - 32);
-  
-  UI.dropdown.style.top = (rect.bottom + 10) + "px";
-  UI.dropdown.style.right = "auto";
-  UI.dropdown.style.left = (rect.right - dropdownWidth) + "px";
+function actualizeazaTotCosul() {
+  salveazaCosul();
+  actualizeazaNumarCos();
+  afiseazaDropdownCos();
+  afiseazaPaginaCheckout();
 }
 
-function toggleCart(e) {
-  if (e) e.stopPropagation();
-  const isOpen = UI.dropdown.classList.toggle("active");
-  
-  if (isOpen && window.innerWidth > 768) {
-    positionDropdown();
-  }
-  
-  UI.icon.setAttribute("aria-expanded", isOpen);
-  if (UI.mobileBtn) UI.mobileBtn.setAttribute("aria-expanded", isOpen);
+function adaugaInCos(item) {
+  let copie = {
+    id: item.id || "item-" + Date.now(),
+    title: item.title || "Movie",
+    subtitle: item.subtitle || "",
+    rentDate: item.rentDate || "",
+    price: Number(item.price || 0),
+    poster: item.poster || "../img/logo.png",
+    cartId: item.cartId || Date.now() + "-" + Math.random()
+  };
 
-  // Efect click
-  UI.icon.classList.add("is-pressed");
-  setTimeout(() => UI.icon.classList.remove("is-pressed"), 160);
+  cartData.push(copie);
+  actualizeazaTotCosul();
 }
 
-function playBumpAnimation() {
-  if (!UI.icon) return;
-  UI.icon.classList.remove("is-bump");
-  void UI.icon.offsetWidth;
-  UI.icon.classList.add("is-bump");
+function stergeDinCos(index) {
+  cartData.splice(index, 1);
+  actualizeazaTotCosul();
 }
 
+function golesteCosul() {
+  cartData = [];
+  actualizeazaTotCosul();
+}
 
-UI.icon?.addEventListener("click", toggleCart);
+function pozitioneazaCosul() {
+  let dropdown = iaElement("cartDropdown");
+  let icon = iaElement("cartIcon");
+  if (!dropdown || !icon) return;
 
-document.addEventListener("click", (e) => {
-  if (!UI.dropdown?.classList.contains("active")) return;
-  const isInside = UI.icon.contains(e.target) || UI.dropdown.contains(e.target) || UI.mobileBtn?.contains(e.target);
-  if (!isInside) {
-    UI.dropdown.classList.remove("active");
-    UI.icon.setAttribute("aria-expanded", "false");
+  let iconPozitie = icon.getBoundingClientRect();
+  let latimeCos = Math.min(420, window.innerWidth - 32);
+  let stanga = iconPozitie.right - latimeCos;
+
+  if (stanga < 16) stanga = 16;
+  if (stanga + latimeCos > window.innerWidth - 16) {
+    stanga = window.innerWidth - latimeCos - 16;
   }
-});
 
-UI.itemsContainer?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-cart-index]");
-  if (btn) {
-    removeMovieFromCart(parseInt(btn.dataset.cartIndex));
+  dropdown.style.width = latimeCos + "px";
+  dropdown.style.top = iconPozitie.bottom + 12 + "px";
+  dropdown.style.left = stanga + "px";
+  dropdown.style.right = "auto";
+  dropdown.style.bottom = "auto";
+}
+
+function deschideSauInchideCos(event) {
+  if (event) event.stopPropagation();
+
+  let dropdown = iaElement("cartDropdown");
+  let icon = iaElement("cartIcon");
+  if (!dropdown || !icon) return;
+
+  let esteDeschis = dropdown.classList.toggle("active");
+  if (esteDeschis) pozitioneazaCosul();
+  icon.setAttribute("aria-expanded", String(esteDeschis));
+}
+
+function confirmaComanda() {
+  if (cartData.length === 0) {
+    alert("Your cart is empty.");
+    return;
   }
-});
 
-document.getElementById("checkoutItems")?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-checkout-remove]");
-  if (btn) {
-    removeMovieFromCart(parseInt(btn.dataset.checkoutRemove));
+  let user = window.WatchlyAuth ? window.WatchlyAuth.getCurrentUser() : null;
+  if (!user) {
+    alert("Please login before checkout.");
+    window.location.href = "../html/register.html";
+    return;
   }
-});
 
-UI.checkoutRedirectBtn?.addEventListener("click", () => {
-  window.location.href = "cart.html";
-});
+  let name = iaElement("checkoutName")?.value.trim();
+  let email = iaElement("checkoutEmail")?.value.trim();
+  let payment = iaElement("checkoutPayment")?.value;
+  let msgBox = iaElement("checkoutMessage");
 
-UI.closeBtn?.addEventListener("click", () => {
-  UI.dropdown.classList.remove("active");
-});
-
-UI.mobileBtn?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  if (window.innerWidth <= 768) {
-    window.location.href = "cart.html";
-  } else {
-    toggleCart(e);
-  }
-});
-
-
-
-const actionBtn = document.getElementById("checkoutAction");
-if (actionBtn) {
-  actionBtn.addEventListener("click", () => {
-    if (cartData.length === 0) return alert("Your cart is empty.");
-
-    const user = window.WatchlyAuth?.getCurrentUser();
-    if (!user) {
-      alert("Please login before checkout.");
-      window.location.href = "../html/register.html";
-      return;
-    }
-
-    const name = document.getElementById("checkoutName")?.value.trim();
-    const email = document.getElementById("checkoutEmail")?.value.trim();
-    const payment = document.getElementById("checkoutPayment")?.value;
-
-    if (!name || !email || !payment) {
-      const msgBox = document.getElementById("checkoutMessage");
+  if (!name || !email || !payment) {
+    if (msgBox) {
       msgBox.textContent = "Completeaza toate campurile de livrare/plata.";
       msgBox.classList.add("active");
-      return;
     }
+    return;
+  }
 
-    const orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS_KEY) || "[]");
-    const subtotal = cartData.reduce((sum, item) => sum + Number(item.price || 0), 0);
-    
-    orders.push({
-      id: `order-${Date.now()}`,
-      userId: user.id,
-      userName: name,
-      userEmail: email,
-      payment: payment,
-      createdAt: new Date().toISOString(),
-      items: cartData,
-      total: subtotal + 1,
-      status: "paid"
-    });
+  let orders = [];
+  try {
+    orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS_KEY)) || [];
+  } catch (error) {
+    orders = [];
+  }
 
-    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders, null, 2));
-    
-    clearCart();
-    const msgBox = document.getElementById("checkoutMessage");
+  orders.push({
+    id: "order-" + Date.now(),
+    userId: user.id,
+    userName: name,
+    userEmail: email,
+    payment: payment,
+    createdAt: new Date().toISOString(),
+    items: cartData,
+    total: numaraTotalul() + 1,
+    status: "paid"
+  });
+
+  localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders, null, 2));
+  golesteCosul();
+
+  if (msgBox) {
     msgBox.textContent = "Comanda a fost confirmata!";
     msgBox.classList.add("active", "success");
-    
-    setTimeout(() => {
-      window.location.href = "../html/orders.html";
-    }, 1000);
-  });
+  }
+
+  setTimeout(function () {
+    window.location.href = "../html/orders.html";
+  }, 1000);
 }
 
-window.addEventListener("scroll", () => {
-  if (UI.dropdown?.classList.contains("active")) positionDropdown();
-});
-window.addEventListener("resize", () => {
-  if (UI.dropdown?.classList.contains("active")) positionDropdown();
-});
+document.addEventListener("DOMContentLoaded", function () {
+  citesteCosul();
+  actualizeazaTotCosul();
 
-loadCart();
-refreshEverything();
+  iaElement("cartIcon")?.addEventListener("click", deschideSauInchideCos);
+  iaElement("mobileCartBtn")?.addEventListener("click", deschideSauInchideCos);
+  iaElement("closeCart")?.addEventListener("click", function () {
+    iaElement("cartDropdown")?.classList.remove("active");
+  });
+
+  iaElement("cartItems")?.addEventListener("click", function (event) {
+    let btn = event.target.closest("[data-cart-index]");
+    if (btn) stergeDinCos(Number(btn.dataset.cartIndex));
+  });
+
+  iaElement("checkoutItems")?.addEventListener("click", function (event) {
+    let btn = event.target.closest("[data-checkout-remove]");
+    if (btn) stergeDinCos(Number(btn.dataset.checkoutRemove));
+  });
+
+  iaElement("checkoutBtn")?.addEventListener("click", function () {
+    window.location.href = "../html/cart.html";
+  });
+
+  iaElement("checkoutAction")?.addEventListener("click", confirmaComanda);
+
+  window.addEventListener("resize", function () {
+    if (iaElement("cartDropdown")?.classList.contains("active")) {
+      pozitioneazaCosul();
+    }
+  });
+
+  window.addEventListener("scroll", function () {
+    if (iaElement("cartDropdown")?.classList.contains("active")) {
+      pozitioneazaCosul();
+    }
+  });
+
+  document.addEventListener("click", function (event) {
+    let dropdown = iaElement("cartDropdown");
+    let icon = iaElement("cartIcon");
+    let mobileIcon = iaElement("mobileCartBtn");
+    if (!dropdown || !dropdown.classList.contains("active")) return;
+    if (dropdown.contains(event.target) || icon?.contains(event.target) || mobileIcon?.contains(event.target)) return;
+    dropdown.classList.remove("active");
+  });
+});
 
 window.WatchlyCart = {
-  addItem: addMovieToCart,
-  getItems: () => [...cartData],
-  clear: clearCart
+  addItem: adaugaInCos,
+  getItems: function () {
+    return cartData.slice();
+  },
+  clear: golesteCosul
 };
