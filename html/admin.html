@@ -11,26 +11,23 @@
   <div id="adminApp">
     <aside class="admin-sidebar" aria-label="Admin navigation">
       <a class="admin-brand" href="../html/home.html">
-        <img src="../img/ui/logo.png" alt="Watchly Logo">
+        <img src="../img/logo.png" alt="Watchly Logo">
       </a>
 
       <nav class="admin-side-nav">
         <button class="admin-nav-tab active" type="button" data-admin-tab="movies">
-          <img src="../img/icons/Movie/Play.svg" alt=""> Movies
+          <img src="../img/icon/Media/play.svg" alt=""> Movies
         </button>
         <button class="admin-nav-tab" type="button" data-admin-tab="home">
-          <img src="../img/account/Home.svg" alt=""> Home Content
+          <img src="../img/icon/Menu/house.svg" alt=""> Home Content
         </button>
         <button class="admin-nav-tab" type="button" data-admin-tab="accounts">
-          <img src="../img/account/Customer.svg" alt=""> Accounts
-        </button>
-        <button class="admin-nav-tab" type="button" data-admin-tab="orders">
-          <img src="../img/icons/Shopping Cart.svg" alt=""> Orders
+          <img src="../img/icon/Interface/user.svg" alt=""> Accounts
         </button>
       </nav>
 
       <div class="admin-sidebar-footer">
-        <a href="../html/home.html"><img src="../img/account/Logout.svg" alt=""> Back to site</a>
+        <a href="../html/home.html"><img src="../img/icon/Interface/exit.svg" alt=""> Back to site</a>
       </div>
     </aside>
 
@@ -95,35 +92,28 @@
             <div class="admin-field">
               <label for="poster">Poster</label>
               <div class="admin-image-input" data-image-box="poster">
-                <div class="admin-image-tabs">
-                  <button class="admin-image-tab active" type="button" data-image-type="url">URL</button>
-                  <button class="admin-image-tab" type="button" data-image-type="upload">Upload</button>
-                </div>
-                <input id="poster" class="admin-image-url-input" required placeholder="../img/movies/movie (1).webp">
-                <input id="posterUpload" class="admin-image-file-input" type="file" accept="image/*" hidden>
-                <button class="admin-image-preview-btn" type="button" hidden>Alege fisier</button>
-                <span class="admin-image-info"></span>
+                <input id="poster" class="admin-image-url-input" required placeholder="../img/movie/1/poster.webp">
               </div>
             </div>
 
             <div class="admin-field">
               <label for="heroBg">Fundal pagina detalii</label>
-              <input id="heroBg" placeholder="../img/hero/pack 1/background.webp">
+              <input id="heroBg" placeholder="../img/hero-calltoview/1/background.webp">
             </div>
 
             <div class="admin-field">
               <label for="logo">Logo film optional</label>
-              <input id="logo" placeholder="../img/hero/pack 1/logo.svg">
+              <input id="logo" placeholder="../img/hero-calltoview/1/logo.svg">
             </div>
 
             <div class="admin-field">
               <label for="thumbnail">Imagine trailer principala</label>
-              <input id="thumbnail" placeholder="../movie-det/1/thumbs/thumb.webp">
+              <input id="thumbnail" placeholder="../img/movie/1/poster.webp">
             </div>
 
             <div class="admin-field">
               <label for="trailerImages">Imagini trailer, separate prin virgula</label>
-              <input id="trailerImages" placeholder="../movie-det/1/trailer/trailer (1).webp, ../movie-det/1/trailer/trailer (2).webp">
+              <input id="trailerImages" placeholder="../img/movie/1/background.webp, ../img/movie/2/background.webp">
             </div>
 
             <div class="admin-field">
@@ -200,7 +190,7 @@
 
             <div class="admin-field">
               <label for="homeImage">Imagine</label>
-              <input id="homeImage" required placeholder="../img/movies/movie (8).webp">
+              <input id="homeImage" required placeholder="../img/movie/8/poster.webp">
             </div>
 
             <div class="admin-row">
@@ -259,24 +249,11 @@
 
           <div class="admin-users" id="adminUsers"></div>
         </section>
-
-        <section class="admin-list admin-wide" data-admin-panel="orders" hidden>
-          <div class="admin-toolbar">
-            <div>
-              <h2 class="admin-title">Orders</h2>
-              <p class="admin-muted" id="adminOrdersCount">0 orders</p>
-            </div>
-            <button class="admin-btn admin-btn--danger" type="button" id="clearOrdersBtn">Clear Orders</button>
-          </div>
-
-          <div class="admin-orders" id="adminOrders"></div>
-        </section>
       </div>
     </main>
   </div>
 
-  <script src="../js/translations.js"></script>
-  <script src="../js/lang-refactored.js"></script>
+  <script src="../js/default-movies.js"></script>
   <script src="../js/admin.js"></script>
 </body>
 </html>
